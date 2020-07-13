@@ -1,7 +1,7 @@
 -- ***********************************
 -- CREATED AND DEVELOPED BY JONAS KOCH
 -- ***********************************
---          Version 1.0.2
+--          Version 1.0.3
 -- ***********************************
 
 --********************************************************--
@@ -28,15 +28,16 @@ local HOST_TYPE      = gma.show.getvar("OS")                                  --
 
 function fits_condition(condition, inputheader, errorheader)
     --[[
-        Returns userinput if it fits 'cond'. Otherwise it requests a new input.
+        Returns userinput if it fits 'condition'. Otherwise it requests a new input.
+        condition = str;
         inputheader  = str;
         errorheader  = str;
-        returns: userinput
+        returns: userinput or empty string
     ]]
     if inputheader == nil then inputheader = 'Enter information.' end
     if errorheader == nil then errorheader = 'Condition not fulfilled. Try again.' end
     local cond, err = load('return function(input) if '..condition..' then return true end end')
-    if err then return end
+    if err then return "" end
     local input = gma.textinput(inputheader)
     input = tonumber(input)
     if cond()(input) then
@@ -45,7 +46,7 @@ function fits_condition(condition, inputheader, errorheader)
     return fits_condition(condition, errorheader, errorheader)
 end
 
-function split(string, symbol, i)
+function split_songname_from_cues(string, symbol, i)
     --[[
         Splits 'string' into two str separated by 'symbol'.
         string = str;
@@ -96,7 +97,7 @@ function manual_setlist_input()
     local amount = fits_condition('type(input)=="number" and input>0', "How many Songs?", "Number of songs must be a natural number.")
     for i = 1, amount do
         local input = gma.textinput("Enter songname "..i.." of "..amount,"")
-        songname, cues = split(input, ";;;", i)
+        songname, cues = split_songname_from_cues(input, ";;;", i)
         songs[i] = {
             name = songname,
             cues = cues,
@@ -105,15 +106,15 @@ function manual_setlist_input()
     return #songs
 end
 
-function pathfinder(OpSys, filename, path, first_flag)
+function find_path(OpSys, filename, path, first_time_flag)
     --[[
         Searches for the filepath of the given filename.
         Returns file object if successive, otherwise returns false.
         OpSys      = str;
         filename   = str;
         path       = str;
-        first_flag = bool;
-        returns: file object or false
+        first_time_flag = bool;
+        returns: file object or nil
     ]]
     local file
     local checkpath = path
@@ -138,18 +139,18 @@ function pathfinder(OpSys, filename, path, first_flag)
         end
     else
         gma.gui.msgbox("ERROR","Hosttype error. Hosttype is: "..OpSys)
-        return false
+        return
     end
     if file == nil then
         local input = gma.textinput("File not found! Choose between:","1 = other filename, 2 = userdefined path, 3(default) = manual setlist input")
         if input == "1" then
             local newname = gma.textinput("Enter filename (excl. suffix):","")..".txt"
-            return pathfinder(OpSys, newname, path, true)
+            return find_path(OpSys, newname, path, true)
         elseif input == "2" then
             local newpath = gma.textinput("Enter own path (excl. filename):",path)
-            return pathfinder(OpSys, filename, newpath)
+            return find_path(OpSys, filename, newpath)
         else
-            return false
+            return
         end
     end
     return file
@@ -171,7 +172,7 @@ function import_setlist(setlist)
         local read = io.read()
         if read ~= nil then
             if has_content(read) then
-                songname, number_of_cues = split(read, ";;;", i)
+                songname, number_of_cues = split_songname_from_cues(read, ";;;", i)
                 songs[i] = {
                     name = songname,
                     cues = number_of_cues,
@@ -189,7 +190,7 @@ function import_setlist(setlist)
     end
 end
 
-function handlesearcher(start,amount,target)
+function get_free_slot(start,amount,target)
     --[[
         Searches for 'amount' consecutive free slots in 'target', beginning at index 'start'.
         Returns the first matching pool/preset index.
@@ -199,7 +200,7 @@ function handlesearcher(start,amount,target)
         returns: int
     ]]
     if (target == "Page" and not get_handle("Page 101")) then
-        pagegenerator(100)
+        generate_pages(100)
     end
     local i = 0
     while true do
@@ -227,10 +228,9 @@ function handlesearcher(start,amount,target)
     end
 end
 
-function pagegenerator(amount)
+function generate_pages(amount)
     --[[
         Generates 'amount' executorpages beginning from page 1.
-        returns: IS VOID
     ]]
     for i = 1, amount do
         cmd('page %i', i)
@@ -250,7 +250,6 @@ function Cuelist_generator_CSP(primalseq, plugin_version, amount_of_songs, start
         plugin_version  = str;
         amount_of_songs = int;
         starting_page   = int;
-        returns: IS VOID
     ]]
     local curexec     = 1
     local seq_counter = primalseq
@@ -291,11 +290,10 @@ function Cuelist_generator_CSP(primalseq, plugin_version, amount_of_songs, start
     cmd('del seq %i /nc; del page %i /nc', main_seq, main_page)
 end
 
-function CSPnext(plugin_version)
+function create_CSPnext(plugin_version)
     --[[
         Creates the CSP2_NEXT-Macro
         plugin_version = str;
-        returns: IS VOID
     ]]
     local linecmd = string.format("assign macro 1.%i.", nextm)
     cmd('store macro 1.%i; store macro 1.%i.1 thru 5; label macro 1.%i "%s"', nextm, nextm, nextm, NEXT_NAME)
@@ -316,7 +314,7 @@ function CSPnext(plugin_version)
     gma.echo("NEXT Macro stored at Macro " .. nextm)
 end
 
-function CSPrest(amount_of_songs, primalseq, plugin_version)
+function create_CSPrest(amount_of_songs, primalseq, plugin_version)
     --[[
         Creates CSP2_RESET Macro with 'primalseq' as the first song sequence and 'plugin_version' for Multi Page or Single Page mode.
         primalseq      = int;
@@ -343,7 +341,7 @@ function CSPrest(amount_of_songs, primalseq, plugin_version)
     gma.echo("RESET Macro stored at Macro " .. resetm)
 end
 
-function CSPrem(amount_of_songs, primalseq, plugin_version, starting_page)
+function create_CSPrem(amount_of_songs, primalseq, plugin_version, starting_page)
     --[[
         Creates the CSP2_REMOVE-Macro with 'primalseq' as the first song sequence and 'amount_of_pages' as the number of executorpages.
         'plugin_version' indicates wether it's Single - or Multi Page mode.
@@ -374,7 +372,7 @@ function CSPrem(amount_of_songs, primalseq, plugin_version, starting_page)
     gma.echo("REMOVE Macro stored at Macro " .. remom)
 end
 
-function userfeedback(primalseq)
+function echo_feedback(primalseq)
     --[[
         Prints the most important informations about created objects.
         primalseq = int;
@@ -385,7 +383,7 @@ function userfeedback(primalseq)
     gma.gui.msgbox("INFO","You can find \n - the plugin related Macros at "..nextm..", "..resetm..", "..remom..". \n - the song-cuelists from sequence "..primalseq.." upwards. \n - the song-pages from page "..starting_page.." upwards.")
 end
 
-function CSP(ui_choice)
+function run_CSP(ui_choice)
     --[[
         Is the main function of the plugin. It runs the necessary functions.
         'ui_choice' represents the single - or multi page mode.
@@ -393,30 +391,30 @@ function CSP(ui_choice)
         returns: IS VOID
     ]]
     local setlist         = gma.textinput("Enter the filename EXCLUDING suffix ('.txt').","")..".txt"
-    local file            = pathfinder(HOST_TYPE, setlist, nil, true)
+    local file            = find_path(HOST_TYPE, setlist, nil, true)
     local amount_of_songs = import_setlist(file)
     local amount_of_pages = (ui_choice == 1 and amount_of_songs or 1)
-    local starting_page   = handlesearcher(101, amount_of_pages, "Page")
-    local seq             = handlesearcher(101, amount_of_songs, "Sequence")
+    local starting_page   = get_free_slot(101, amount_of_pages, "Page")
+    local seq             = get_free_slot(101, amount_of_songs, "Sequence")
     local finalseq        = Cuelist_generator_CSP(seq, ui_choice, amount_of_songs, starting_page)
-    nextm                 = handlesearcher(1, 3, "Macro")
+    nextm                 = get_free_slot(1, 3, "Macro")
     resetm                = nextm + 1
     remom                 = nextm + 2
-    CSPnext(ui_choice)
-    CSPrest(amount_of_songs, seq, ui_choice)
-    CSPrem(amount_of_songs, seq, ui_choice,starting_page)
-    userfeedback(seq)
+    create_CSPnext(ui_choice)
+    create_CSPrest(amount_of_songs, seq, ui_choice)
+    create_CSPrem(amount_of_songs, seq, ui_choice,starting_page)
+    echo_feedback(seq)
 end
 
-function mainmenu()
+function start_main_menu()
     --[[
         Creates the main menu executor to let the user choose between single - and multi page mode.
         returns: IS VOID
     ]]
-    local CSP1 = "'CSP(1)'"
-    local CSP2 = "'CSP(2)'"
-    main_seq   = handlesearcher(1,1,"Sequence")
-    main_page  = handlesearcher(1,1,"Page")
+    local CSP1 = "'run_CSP(1)'"
+    local CSP2 = "'run_CSP(2)'"
+    main_seq   = get_free_slot(1,1,"Sequence")
+    main_page  = get_free_slot(1,1,"Page")
     gma.echo("Main menu stored at page "..main_page)
     gma.feedback("Main menu stored at page "..main_page)
     cmd('store seq %i cue 1 "Multi Page"; store seq %i cue 2 "Single Page"', main_seq, main_seq)
@@ -430,18 +428,18 @@ function mainmenu()
     cmd('Goto exec %i.1', main_page)
 end
 
-function confirmation()
+function get_confirmation()
     --[[
         Requests confirmation from the user to run the plugin.
         returns: IS VOID
     ]]
     local confirm = gma.gui.confirm("ATTENTION!","READ THE MANUAL BEFORE CONTINUING!")
     if confirm then
-        mainmenu()
+        start_main_menu()
     else 
         gma.gui.msgbox("info","CueShow Prepper has been aborted by user.")
         gma.echo("CueShow Prepper has been aborted by user.")
     end
 end
 
-return confirmation
+return get_confirmation
