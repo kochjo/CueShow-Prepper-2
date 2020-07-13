@@ -1,5 +1,14 @@
 # CueShow-Prepper-2
 
+## Disclaimer
+__ATTENTION!__
+You are using this plugin at your own risk!
+Even though there have been no critical bugs reported until now, the creator of this plugin under no circumstances assumes responsibility for damaged, destroyed or in any way negatively influenced show files or damaged or destroyed content or parts of a show file.
+It is recommended to use this plugin only in an empty show file and as the first step of your workflow.
+In case you want to use this plugin in an important and not empty show file (what is highly not-recommended), please always do a backup on an external USB-Stick.
+DO NOT RUN THIS PLUGIN IN ANY SHOW-CRITICAL SITUATIONS!
+
+
 ## Table of contents
 * [What is CSP2?](#what-is-csp2?)
 * [What does the Multi Page Version do?](#what-does-the-multi-page-version-do?)
