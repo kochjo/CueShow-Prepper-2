@@ -69,15 +69,15 @@ __Tipp: Rather use short song names as they are easier to read and not at risk t
 __IMPORTANT: Known issue at the current version (only on console): Lines without semicolons (like line number 6 in the example above) will get registered as songs, but they won’t be labeled correctly. If you don’t want to add semicolons to all lines, it is recommended to use onPC for ASI.__
 
 ## Installation guide
-1. Please follow these Steps for the installation of CSP2:
-2. Move the required files to the right directory.
-3.1 For onPC: Copy the folder CSP2 into: C:\\Program Data\\MA Lighting Technologies\\grandma\\gma2_V_X\\plugins.
-3.2 For Console: Copy the folder CSP2 to a USB-Stick at: „STICK NAME"\\gma2\\plugins.
-4. Open GrandMA2 onPC / start console.
-5. Open a PLUGIN-Pool. You can find it under „System".
-6. Right-click on a free plugin-field.
-7. Click at "import" and choose „CSP2.xml"
-8. Close the window.
+Please follow these Steps for the installation of CSP2:
+1. Move the required files to the right directory.<br>
+  1.1 For onPC: Copy the folder CSP2 into: C:\\Program Data\\MA Lighting Technologies\\grandma\\gma2_V_X\\plugins.<br>
+  1.2 For Console: Copy the folder CSP2 to a USB-Stick at: „STICK NAME"\\gma2\\plugins.
+2. Open GrandMA2 onPC / start console.
+3. Open a PLUGIN-Pool. You can find it under „System".
+4. Right-click on a free plugin-field.
+5. Click at "import" and choose „CSP2.xml"
+6. Close the window.
 
 ## Setup
 To run CSP2 on your GrandMA2 follow these steps:
