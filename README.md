@@ -75,7 +75,7 @@ What you have to know about ASI and how you can use it:
 7. If you don’t want to use ASI, and enter the songs manually, you can just press „PLEASE“ when the plugin asks you for the name of the setlist, and leave the popup empty. Press „PLEASE“ again at the following popup, to start the manual setlist input.
 
 __Tipp: Rather use short song names as they are easier to read and not at risk to get cut off by GrandMA2 due to limited label lengths.__<br>
-__IMPORTANT: Known issue at the current version (only on console): Lines without semicolons (like line number 6 in the example above) will get registered as songs, but they won’t be labeled correctly. If you don’t want to add semicolons to all lines, it is recommended to use onPC for ASI.__
+__IMPORTANT: Known issue at the current version (only on console): Lines without semicolons will get registered as songs, but they won’t be labeled correctly. If you don’t want to add semicolons to all lines, it is recommended to use onPC for ASI.__
 
 ## Installation guide
 Please follow these Steps for the installation of CSP2:
@@ -91,13 +91,14 @@ Please follow these Steps for the installation of CSP2:
 ## Setup
 To run CSP2 on your GrandMA2 follow these steps:
 1. Install CSP2
-2. Prepare the Setlist for ASI (optional) (Page 6)
+2. Prepare the Setlist for ASI (optional)
 3. Run CSP2 by clicking at the plugin or by typing „Plugin CSP2“ in the Command Line.
 4. Confirm that you read the manual.
-5. Select if you want to use CSP2 in either Multi Page or Single Page mode. (Pages 4 + 5)
-6. Enter the name of the setlist for ASI (optional), else press „PLEASE“. If you chose to enter the songs manually:
-6.1. Enter the number of songs in total.
-6.2. Enter each song name one by one.
+5. Select if you want to use CSP2 in either Multi Page or Single Page mode.
+6. Enter the name of the setlist for ASI (optional), else press „PLEASE“.<br>
+   If you chose to enter the songs manually:<br>
+   6.1. Enter the number of songs in total.<br>
+   6.2. Enter each song name one by one.
 7. (Only if you chose Multi Page Mode) Enter the executor number for the song sequence.
 8. Note down the macro numbers. They are shown you in an appearing popup, but also in the command line feedback and the system monitor window.
 
